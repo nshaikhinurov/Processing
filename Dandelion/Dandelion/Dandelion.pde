@@ -44,8 +44,9 @@ void draw(){
 void mainDraw(){
   background(whiteColor);
   for (int i = 0; i < 3; i++){
-    float x = random(0.2*width, 0.8*width);
-    float y = random(0.5*height, 0.8*height);
+    float x = random(0.3*width, 0.7*width);
+    // float y = random(0.35*height, 0.8*height);
+    float y = map(i,0,2,0.35*height, 0.8*height);
     float d = map(y, 0.4*height, 0.8*height, 0.3*width, 0.1*width);
     renderFlower(x, y, d, d/6);
   }
@@ -109,19 +110,30 @@ void renderCenter(float d){
   ellipse(0, 0, d, d);
 }
 
-void renderSeeds(float r, float length){
-  stroke(blackColor);
+void renderSeeds(float distanceFromFlowerCenter, float seedStemLength){
   for (int i = 0; i < seedsCount; i++){
     float alpha = random(TWO_PI);
-    float x = cos(alpha) * r;
-    float y = sin(alpha) * r;
-    float x2 = cos(alpha) * length;
-    float y2 = sin(alpha) * length;
-    float seedSize = random(r*0.05, r*0.3);
-    strokeWeight(seedSize);
-    point(x, y);
-    strokeWeight(length/150);
-    line(x,y,x2,y2);
+    float x = cos(alpha) * distanceFromFlowerCenter;
+    float y = sin(alpha) * distanceFromFlowerCenter;
+    float seedSize = random(distanceFromFlowerCenter*0.05, distanceFromFlowerCenter*0.3);
+    noStroke();
+    fill(blackColor);
+    ellipse(x, y, seedSize, seedSize);
+
+    float s1 = 0;
+    float s2 = 0;
+    while (s2 - s1 < 0.3*seedStemLength){
+      s1 = random(distanceFromFlowerCenter,seedStemLength);
+      s2 = random(distanceFromFlowerCenter,seedStemLength);
+    }
+    float x1 = cos(alpha) * s1;
+    float y1 = sin(alpha) * s1;
+    float x2 = cos(alpha) * s2;
+    float y2 = sin(alpha) * s2;
+    noFill();
+    stroke(blackColor);
+    strokeWeight(seedStemLength/150);
+    line(x1,y1,x2,y2);
   }
 }
 
