@@ -1,0 +1,6 @@
+*.pdf
+*.png
+*.jpg
+*.psd
+*MockUps/
+**/build/
