@@ -24,7 +24,7 @@ void setup(){
 void generateLines(){
   lines = new Line[0];
   for (int i = 0; i < Config.N; i++)
-  generateRow(i);
+    generateRow(i);
 };
 
 void generateRow(int rowNumber){
