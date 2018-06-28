@@ -5,6 +5,6 @@
 *MockUps/
 **/build/
 *.gitignore
-*.gitatributes
+*.gitattributes
 
 !**/images/
