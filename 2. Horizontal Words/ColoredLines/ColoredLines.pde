@@ -2,22 +2,6 @@ import processing.pdf.*;
 
 Line[] lines;
 
-// color[] palette = {
-//   #1270ff
-//   ,#fff512
-//   ,#e00400
-//   ,#870099
-//   ,#1dcf00
-// };
-//
-// color[] palette = {
-//   #292929
-//   ,#2bbfbd
-//   ,#f2b33d
-//   ,#f29b30
-//   ,#f22e2e
-// };
-
 color[] palette = {
   #581845
   ,#900c3f
@@ -26,17 +10,7 @@ color[] palette = {
   ,#ffc305
 };
 
-// color[] palette = {
-//   #ffbd52
-//   ,#8092ff
-//   ,#86ff72
-//   ,#4fdbff
-//   ,#ff6354
-//   ,#ff8cb4
-// };
-
 color bgc = #eeeeee;
-// color bgc = #292d2f;
 
 void setup(){
   size(750, 750);
@@ -62,7 +36,7 @@ void generateRow(int rowNumber){
       gapsCoordinates[i] = random(Config.fieldSize);
     }
     gapsCoordinates = sort(gapsCoordinates);
-  } while (isShortLines(gapsCoordinates));
+  } while (areLinesTooShort(gapsCoordinates));
 
   lines = (Line[])append(lines, new Line(
     0.1*Config.sketchSize,
@@ -86,7 +60,7 @@ void generateRow(int rowNumber){
   ));
 }
 
-boolean isShortLines(float[] gapsCoordinates){
+boolean areLinesTooShort(float[] gapsCoordinates){
   float minLength = gapsCoordinates[0] - Config.gap/2.0;
   for(int i = 1; i < gapsCoordinates.length; i++)
     minLength = min(minLength, gapsCoordinates[i] - gapsCoordinates[i-1] - Config.gap);
@@ -97,7 +71,7 @@ boolean isShortLines(float[] gapsCoordinates){
 }
 
 void draw(){
-  beginRecord(PDF, "ColoredLines.pdf");
+  beginRecord(PDF, "../ColoredLines.pdf");
   background(bgc);
   strokeWeight(Config.thickness);
   generateLines();
