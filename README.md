@@ -2,7 +2,9 @@
 More about Processing on [Processing.org](https://processing.org/)
 
 Artwork #2
+
 ![](https://github.com/nshaikhinurov/Processing/blob/dev/2.%20Horizontal%20Words/HorizontalWords/images/HorizontalWords.jpg "Horizontal Words")
 
 Artwork #1
+
 ![](https://github.com/nshaikhinurov/Processing/blob/dev/1.%20Binary%20dots/BinaryDots/images/BinaryDots.jpg "Binary Dots")
