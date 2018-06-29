@@ -6,6 +6,7 @@ color whiteColor = #eeeeee;
 color redWineColor = #cc0000;
 color whiteWineColor = #d4ab39;
 color wineColor = redWineColor;
+
 color[] bestPalette = {
   #3d348b
   ,#7678ed
@@ -89,7 +90,7 @@ List<Cube> generateIceCubes(float glassRadius, float liquidHeight, int n){
       for(int j = 0; j < 4; j++){
         xCoordinates[j] = x + r*cos(alpha + QUARTER_PI + j*HALF_PI);
         yCoordinates[j] = y + r*sin(alpha + QUARTER_PI + j*HALF_PI);
-        isCubeInsideGlass &= isPointInsideGlass(xCoordinates[j], yCoordinates[j], glassRadius);
+      isCubeInsideGlass &= isPointInsideGlass(xCoordinates[j], yCoordinates[j], glassRadius);
       }
     } while (!isCubeInsideGlass);
     cubes.add(new Cube(x, y, alpha, side));
