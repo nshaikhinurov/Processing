@@ -23,7 +23,7 @@ float sideLength;
 
 void setup(){
   size(1000, 1000);
-   sideLength = 1.3*width/(numberOfPoints-1);
+  sideLength = 1.3*width/(numberOfPoints-1);
   noLoop();
 }
 
@@ -89,8 +89,9 @@ List<Triangle> generateTriangulation(){
   for (int i = 0; i < numberOfPoints; i++){
     for(int j = 0; j < numberOfPoints; j++){
       Point p = triangulationPoints.get(index(i,j));
-      p.x += random(-0.3*sideLength,0.3*sideLength);
-      p.y += random(-0.3*sideLength,0.3*sideLength);
+      float alpha = random(TWO_PI);
+      p.x += 0.3*sideLength * cos(alpha);
+      p.y += 0.3*sideLength * sin(alpha);
     }
   }
   return triangulation;

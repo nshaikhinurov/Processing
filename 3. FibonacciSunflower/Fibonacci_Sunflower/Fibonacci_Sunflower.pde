@@ -50,8 +50,7 @@ void renderSeed(int k){
   if(actualSeedDistance < 0.15 * maxDistance)
     return;
 
-  fill(palette[floor(random(palette.length))]);
-  // fill(#333333);
+  fill(getRandomPaletteColor(palette));
   ellipse(
     sketchSize/2.0 + cos(seedAngle)*actualSeedDistance,
     sketchSize/2.0 + sin(seedAngle)*actualSeedDistance,
@@ -89,6 +88,10 @@ float getSeedDistance(int k){
 
 float getSeedAngle(int k){
   return TWO_PI*PHI*k;
+}
+
+color getRandomPaletteColor(color[] palette){
+  return palette[floor(random(palette.length))];
 }
 
 void mouseClicked() {

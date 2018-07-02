@@ -2,15 +2,12 @@ import processing.pdf.*;
 
 float screenWidth;
 float screenHeight;
-// int dotsCount = (int)(screenWidth/50);
 int Y_AXIS = 1;
 int X_AXIS = 2;
 
 float[] terrainContour;
 
 color[] bluesPalette = {
-  // #b5f6f7
-  // ,#61c5d7
   #1a94bb
   ,#0070a8
   ,#06548f
@@ -139,11 +136,6 @@ void GenerateTerrainContour()
     }
  }
 
- void changeNoiseParams(){
-   scale *= 1.1;
-   println("Scale="+scale);
- }
-
  void offsetToTargetLevel(float targetLevel){
    translate(0, targetLevel);
  }
@@ -188,6 +180,5 @@ void GenerateTerrainContour()
  }
 
  void mouseClicked() {
-   // changeNoiseParams();
    redraw();
  }
