@@ -1,155 +1,215 @@
 import processing.pdf.*;
 import java.util.*;
 
-float screenWidth;
-float screenHeight;
-
-color redColor = #F44336;
-color yellowColor = #FFEB3B;
-color indigoColor = #3F51B5;
 color blackColor = #212121;
 color whiteColor = #eeeeee;
-
-int pointsNumber = 5;
+color[] palette = {
+  // #3d348b
+  // ,#7678ed
+  #f7b801
+  ,#f18701
+  ,#ff4f00
+};
+color[] palette1 = {
+  #fee2c6
+  ,#ffd09d
+  ,#fdb970
+  ,#fe952c
+  ,#fd861c
+};
+List<Point> triangulationPoints;
+int numberOfPoints = 10;
+float sideLength;
 
 void setup(){
   size(1000, 1000);
+   sideLength = 1.3*width/(numberOfPoints-1);
   noLoop();
 }
 
 void draw(){
-  testDraw();
-  // mainDraw();
+  mainDraw();
 }
 
 void mainDraw(){
-  beginRecord(PDF, "Triangulation.pdf");
+  beginRecord(PDF, "../DelaunayTriangulation.pdf");
+  background(whiteColor);
+  noFill();
+  translate(-0.1*width,-0.1*height);
+  List<Triangle> triangulation = generateTriangulation();
+  makeDelaunayTriangulation(triangulation);
+  renderTriangulation(triangulation);
+  // renderPoints(triangulationPoints);
   endRecord();
 }
 
-Point[] getRandomSet(){
-  Point[] set = new Point[pointsNumber];
-  for (int i = 0; i < pointsNumber; i++){
-    float x = random(0, width);
-    float y = random(0, height);
-    set[i] = new Point(x,y);
-  }
-  return set;
-}
+List<Triangle> generateTriangulation(){
+  triangulationPoints = new ArrayList<Point>();
+  List<Triangle> triangulation = new ArrayList<Triangle>();
+  float tHeight = sqrt(3)/2*sideLength;
+  for (int i = 0; i < numberOfPoints; i++)
+    for( int j = 0; j < numberOfPoints; j++)
+      triangulationPoints.add(new Point(j*sideLength, i*tHeight));
 
-List<Triangle> generateTriangulation(Point[] points){
-  List<Point> set = new ArrayList<Point>(Arrays.asList(points));
-  List<Triangle> triangles = new ArrayList<Triangle>();
-  List<Edge> frontier = new ArrayList<Edge>();
-  Edge e = hullEdge(set);
-  frontier.add(e);
-  while(!frontier.isEmpty()){
-    e = removeMinimalEdgeFromList(frontier);
-    Point mateP = mate(e, set);
-    if (mateP != null){
-      updateFrontier(frontier, e.start, mateP);
-      updateFrontier(frontier, mateP, e.end);
-      triangles.add(new Triangle(e.start, mateP, e.end));
-    }
-  }
-  return triangles;
-}
-
-Edge hullEdge(List<Point> set){
-  int n = set.size();
-  int m = 0;
-  for (int i = 1; i < n; i++){
-    if (set.get(i).compareTo(set.get(m)) < 0)
-      m = i;
-  }
-  Collections.swap(set, 0, m);
-
-  m = 1;
-  for(int i = 2; i < n; i++){
-    int side = set.get(i).getSide(set.get(0), set.get(m));
-    if (side <= 0)
-      m = i;
-  }
-  return new Edge(set.get(0), set.get(m));
-}
-
-Edge removeMinimalEdgeFromList(List<Edge> edges){
-  Edge minEdge = edges.get(0);
-  for (Edge e : edges){
-    if (e.compareTo(minEdge) < 0)
-      minEdge = e;
-  }
-  edges.remove(minEdge);
-  return minEdge;
-}
-
-Point mate(Edge e, List<Point> set){
-  Point bestPoint = null;
-  float minDelta = Float.MAX_VALUE;
-  float midPointX = (e.start.x + e.end.x)/2;
-  float midPointY = (e.start.y + e.end.y)/2;
-  Point e1RotParams = getRotParams(e);
-  for (Point p : set){
-    if (p.getSide(e.start, e.end) > 0){
-      Edge e2 = new Edge(e.end, p);
-      Point e2RotParams = getRotParams(e2);
-      float cX = (e2RotParams.y-e1RotParams.y)/(e1RotParams.x-e2RotParams.x);
-      float cY = e1RotParams.x * cX + e1RotParams.y;
-      float delta = sqrt(sq(cY-midPointY) + sq(cX-midPointX));
-      // ellipse(cX, cY, delta, delta);
-      if (delta < minDelta){
-        minDelta = delta;
-        bestPoint = p;
+  for (int i = 0; i < numberOfPoints-1; i++){
+    for (int j = 0; j < numberOfPoints-1; j++){
+      if (i % 2 == 0){
+        triangulation.add(new Triangle(
+            triangulationPoints.get(index(i,j)),
+            triangulationPoints.get(index(i,j+1)),
+            triangulationPoints.get(index(i+1,j))
+        ));
+        triangulation.add(new Triangle(
+            triangulationPoints.get(index(i+1,j)),
+            triangulationPoints.get(index(i,j+1)),
+            triangulationPoints.get(index(i+1,j+1))
+        ));
+      } else {
+        triangulation.add(new Triangle(
+            triangulationPoints.get(index(i,j)),
+            triangulationPoints.get(index(i,j+1)),
+            triangulationPoints.get(index(i+1,j+1))
+        ));
+        triangulation.add(new Triangle(
+            triangulationPoints.get(index(i,j)),
+            triangulationPoints.get(index(i+1,j)),
+            triangulationPoints.get(index(i+1,j+1))
+        ));
       }
     }
   }
-  return bestPoint;
-}
 
-Point getRotParams(Edge e){
-  float midPointX = (e.start.x + e.end.x)/2;
-  float midPointY = (e.start.y + e.end.y)/2;
-  Point midPoint = new Point(midPointX, midPointY);
-  float k = -1 / ( (e.end.y-e.start.y)/(e.end.x-e.start.x) );
-  float b = midPointY - k*midPointX;
-  return new Point(k, b);
-}
-
-void updateFrontier(List<Edge> frontier, Point p1, Point p2){
-  Edge newEdge = new Edge(p1, p2);
-  Edge inFrontierEdge = findEdgeInFrontier(newEdge, frontier);
-  if(inFrontierEdge != null)
-    frontier.remove(inFrontierEdge);
-  else {
-    // flip?
-    frontier.add(newEdge);
+  for (int i = 1; i < numberOfPoints; i+=2){
+    for(int j = 0; j < numberOfPoints; j++){
+      Point p = triangulationPoints.get(index(i,j));
+      p.x += 0.5*sideLength;
+    }
   }
-}
 
-Edge findEdgeInFrontier(Edge edge, List<Edge> frontier){
-  for (Edge e : frontier){
-    if(
-      edge.start.equals(e.start) && edge.end.equals(e.end)
-      ||
-      edge.start.equals(e.end) && edge.end.equals(e.start)
-    )
-    return e;
+  for (int i = 0; i < numberOfPoints; i++){
+    for(int j = 0; j < numberOfPoints; j++){
+      Point p = triangulationPoints.get(index(i,j));
+      p.x += random(-0.3*sideLength,0.3*sideLength);
+      p.y += random(-0.3*sideLength,0.3*sideLength);
+    }
   }
-  return null;
+  return triangulation;
 }
 
-void testDraw(){
-  background(whiteColor);
-  Point[] set = getRandomSet();
-  List<Triangle> triangulation = generateTriangulation(set);
-  renderTriangulation(triangulation);
-  renderPoints(set);
+int index(int i, int j){
+  return j + i*numberOfPoints;
+}
+
+void makeDelaunayTriangulation(List<Triangle> triangulation){
+  boolean areAllTrianglesDelaunay;
+  boolean outerLoop;
+  do{
+    areAllTrianglesDelaunay = true;
+    outerLoop = true;
+    for (int i = 0; i < triangulation.size()-1 && outerLoop; i++){
+      Triangle t1 = triangulation.get(i);
+      for (int j = i+1; j < triangulation.size(); j++){
+        Triangle t2 = triangulation.get(j);
+        if (areSided(t1,t2) && !isDelaunayCondition(t1,t2)){
+          areAllTrianglesDelaunay = false;
+          makeFlip(t1, t2);
+          outerLoop = false;
+          break;
+        }
+      }
+    }
+  } while(!areAllTrianglesDelaunay);
+}
+
+boolean areSided(Triangle t1, Triangle t2){
+  List<Point> points1 = t1.getPoints();
+  List<Point> points2 = t2.getPoints();
+  int equalPointsCount = 0;
+  for(Point p1 : points1)
+    for(Point p2 : points2)
+      if (p1 == p2)
+        equalPointsCount++;
+  return equalPointsCount == 2;
+}
+
+boolean isDelaunayCondition(Triangle t1, Triangle t2){
+  Point a = t1.a;
+  Point b = t1.b;
+  Point c = t1.c;
+  List<Point> points = t2.getPoints();
+  if (isAnyPointInsideCircle(points, a,b,c)){
+    return false;
+  }
+  return true;
+}
+
+boolean isAnyPointInsideCircle(List<Point> points, Point p1, Point p2, Point p3){
+  float A = p2.x - p1.x;
+  float B = p2.y - p1.y;
+  float C = p3.x - p1.x;
+  float D = p3.y - p1.y;
+  float E = A * (p1.x + p2.x) + B * (p1.y + p2.y);
+  float F = C * (p1.x + p3.x) + D * (p1.y + p3.y);
+  float G = 2 * (A * (p3.y - p2.y) - B * (p3.x - p2.x));
+  if (G == 0){
+    return false;
+  }
+  float cX = (D * E - B * F) / G;
+  float cY = (A * F - C * E) / G;
+  float r = magnitude(p1.x,p1.y,cX,cY);
+  for(Point p : points){
+    float mag = magnitude(cX,cY,p.x,p.y);
+    if (mag < r*0.999)
+      return true;
+  }
+  return false;
+}
+
+float magnitude(float x1, float y1, float x2, float y2){
+  return sqrt( sq(x1-x2) + sq(y1-y2) );
+}
+
+void makeFlip(Triangle t1, Triangle t2){
+  List<Point> points1 = t1.getPoints();
+  List<Point> points2 = t2.getPoints();
+  Point a = null;
+  Point b = null;
+  Point c = null;
+  Point d = null;
+  for(Point p1 : points1){
+    for(Point p2 : points2){
+      if (p1 == p2){
+        if (b == null)
+          b = p1;
+        else
+          c = p1;
+      }
+    }
+  }
+  for(Point p1 : points1){
+    if (p1 != b && p1 != c){
+      a = p1;
+      break;
+    }
+  }
+  for(Point p2 : points2){
+    if (p2 != b && p2 != c){
+      d = p2;
+      break;
+    }
+  }
+  t1.a = a;
+  t1.b = b;
+  t1.c = d;
+  t2.a = a;
+  t2.b = d;
+  t2.c = c;
 }
 
 void renderTriangulation(List<Triangle> triangulation){
-  stroke(blackColor);
-  strokeWeight(3);
+  noStroke();
   for(Triangle t : triangulation){
+    fill(getRandomPaletteColor(palette1));
     triangle(
       t.a.x, t.a.y,
       t.b.x, t.b.y,
@@ -158,12 +218,20 @@ void renderTriangulation(List<Triangle> triangulation){
   }
 }
 
-void renderPoints(Point[] set){
+void renderPoints(List<Point> points){
   stroke(blackColor);
   strokeWeight(15);
-  for(Point p : set){
+  for(Point p : points){
     point(p.x, p.y);
   }
+}
+
+void testDraw(){
+  background(whiteColor);
+}
+
+color getRandomPaletteColor(color[] palette){
+  return palette[floor(random(palette.length))];
 }
 
 void mouseClicked() {

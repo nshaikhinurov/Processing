@@ -47,8 +47,8 @@ void placeRandomShape(){
   float x = random(-0.4*width, +0.4*width);
   float y = random(-0.4*height, +0.4*height);
   float diameter = random(0.02*width, 0.2*width);
-  // float rotation = random(TWO_PI);
-  float rotation = HALF_PI;
+  float rotation = random(TWO_PI);
+  // float rotation = HALF_PI;
   float strokeThickness = random(diameter/56, diameter/56*3);
   // int shapeType = (int) random(4);
   int shapeType = 1;
