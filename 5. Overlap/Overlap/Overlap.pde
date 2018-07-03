@@ -1,22 +1,38 @@
 import processing.pdf.*;
-import java.util.Collections;
+import java.util.*;
 
-float screenWidth = 720;
-float screenHeight = 720;
-int numberOfStrokes = 18;
-ArrayList <Integer> strokesIds;
-float strokeLength = 0.8*screenWidth/sqrt(2);
-// float strokeLength = 0.8*screenWidth;
-float gapMultiplier = 0;
-float strokeThickness = strokeLength/numberOfStrokes;
 color[] palette = {
   #333333
 };
 
+int numberOfStrokes;
+ArrayList<Integer> strokesIds;
+float strokeLength;
+float gapMultiplier;
+float strokeThickness;
+
 void setup(){
   size(720,720);
-  // test();
   noLoop();
+
+  numberOfStrokes = 18;
+  strokeLength = 0.8*width / sqrt(2);
+  gapMultiplier = 0;
+  strokeThickness = strokeLength/numberOfStrokes;
+}
+
+void draw(){
+  generateStrokesOrder();
+
+  beginRecord(PDF, "../Overlap.pdf");
+  background(#eeeeee);
+  stroke(#eeeeee);
+  strokeWeight(strokeThickness/4);
+  translate(width/2.0, height/2.0);
+  rotate(PI/4);
+  rectMode(CENTER);
+  renderStrokes();
+  endRecord();
 }
 
 void generateStrokesOrder(){
@@ -25,24 +41,6 @@ void generateStrokesOrder(){
     strokesIds.add(i);
   }
   Collections.shuffle(strokesIds);
-}
-
-void test(){
-    println(strokesIds);
-}
-
-void draw(){
-  beginRecord(PDF, "Overlap.pdf");
-  generateStrokesOrder();
-  background(#eeeeee);
-  stroke(#eeeeee);
-  // noStroke();
-  strokeWeight(strokeThickness/4);
-  translate(screenWidth/2.0, screenHeight/2.0);
-  rotate(PI/4.0);
-  rectMode(CENTER);
-  renderStrokes();
-  endRecord();
 }
 
 void renderStrokes(){
@@ -61,13 +59,11 @@ void renderStroke(int i){
 void renderHorizontalStroke(int i){
   float y = map(i, 0, numberOfStrokes-1, -strokeLength/2, strokeLength/2);
   rect(0, y, strokeLength+strokeThickness, strokeThickness);
-  // rect((screenWidth-strokeLength)/2.0, (screenHeight-strokeLength)/2.0 + i*(strokeThickness + gap), strokeLength, strokeThickness);
 }
 
 void renderVerticalStroke(int i){
   float x = map(i, 0, numberOfStrokes-1, -strokeLength/2, strokeLength/2);
   rect(x, 0, strokeThickness, strokeLength+strokeThickness);
-  // rect((screenHeight-strokeLength)/2.0 + i*(strokeThickness + gap), (screenWidth-strokeLength)/2.0, strokeThickness, strokeLength);
 }
 
 void mouseClicked() {

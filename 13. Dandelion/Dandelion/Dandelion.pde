@@ -164,14 +164,6 @@ int sign(float f) {
   return 0;
 }
 
-// float getVectorAngle(float x1, float y1, float x2, float y2){
-//   PVector v1 = new PVector(-x1,-y1);
-//   PVector v2 = new PVector(x2, y2);
-//   PVector v = PVector.add(v1, v2, null);
-//   PVector zero = new PVector(1, 0);
-//   return PVector.angleBetween(v, zero);
-// }
-
 color getRandomPaletteColor(color[] palette){
   return palette[floor(random(palette.length))];
 }
