@@ -20,6 +20,7 @@ void setup(){
 void draw(){
   background(blackColor);
   stroke(whiteColor);
+  line(0,0.5*height,width,0.5*height);
   noFill();
   beginShape();
   float xOff = start;

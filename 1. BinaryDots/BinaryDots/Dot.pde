@@ -6,11 +6,8 @@ public class Dot{
   public int col;
 
   public Dot(int row, int col){
-    // this.outerRadius = random(Config.maxRadius) * floor(random(6))/5.0;
     this.outerRadius = random(Config.maxRadius);
-    // this.innerRadius = floor(random(5))/5.0 * outerRadius;
     this.innerRadius = random(1) * outerRadius;
-    // this.alpha = 256 * (1+floor(random(3)))/3.0;
     this.alpha = generateAlpha();
     this.row = row;
     this.col = col;
@@ -25,6 +22,7 @@ public class Dot{
 
     if (isThick())
       return 256;
+      
     return 256 * ceil(random(3))/3.0;
   }
 
