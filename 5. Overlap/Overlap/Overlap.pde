@@ -1,17 +1,16 @@
 import processing.pdf.*;
-import java.util.Collections;
+import java.util.*;
 
-float screenWidth = 720;
-float screenHeight = 720;
+color[] palette = {
+  #333333
+};
+
 int numberOfStrokes = 18;
-ArrayList <Integer> strokesIds;
+ArrayList<Integer> strokesIds;
 float strokeLength = 0.8*screenWidth/sqrt(2);
 // float strokeLength = 0.8*screenWidth;
 float gapMultiplier = 0;
 float strokeThickness = strokeLength/numberOfStrokes;
-color[] palette = {
-  #333333
-};
 
 void setup(){
   size(720,720);
@@ -32,7 +31,7 @@ void test(){
 }
 
 void draw(){
-  beginRecord(PDF, "Overlap.pdf");
+  beginRecord(PDF, "../Overlap.pdf");
   generateStrokesOrder();
   background(#eeeeee);
   stroke(#eeeeee);

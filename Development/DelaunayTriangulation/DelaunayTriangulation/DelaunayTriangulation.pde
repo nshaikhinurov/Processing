@@ -18,7 +18,7 @@ color[] palette1 = {
   ,#fd861c
 };
 List<Point> triangulationPoints;
-int numberOfPoints = 10;
+int numberOfPoints = 7;
 float sideLength;
 
 void setup(){
@@ -33,13 +33,21 @@ void draw(){
 
 void mainDraw(){
   beginRecord(PDF, "../DelaunayTriangulation.pdf");
-  background(whiteColor);
   noFill();
+  background(#ffffff);
   translate(-0.1*width,-0.1*height);
+
+  stroke(2.0/3*255);
   List<Triangle> triangulation = generateTriangulation();
   makeDelaunayTriangulation(triangulation);
   renderTriangulation(triangulation);
-  // renderPoints(triangulationPoints);
+  renderPoints(triangulationPoints);
+
+  stroke(blackColor);
+  List<Triangle> triangulation2 = generateTriangulation();
+  makeDelaunayTriangulation(triangulation2);
+  renderTriangulation(triangulation2);
+  renderPoints(triangulationPoints);
   endRecord();
 }
 
@@ -208,9 +216,11 @@ void makeFlip(Triangle t1, Triangle t2){
 }
 
 void renderTriangulation(List<Triangle> triangulation){
-  noStroke();
+  // noStroke();
+  // stroke(blackColor);
+  strokeWeight(1);
   for(Triangle t : triangulation){
-    fill(getRandomPaletteColor(palette1));
+    // fill(getRandomPaletteColor(palette1));
     triangle(
       t.a.x, t.a.y,
       t.b.x, t.b.y,
@@ -220,8 +230,8 @@ void renderTriangulation(List<Triangle> triangulation){
 }
 
 void renderPoints(List<Point> points){
-  stroke(blackColor);
-  strokeWeight(15);
+  // stroke(blackColor);
+  strokeWeight(7);
   for(Point p : points){
     point(p.x, p.y);
   }
@@ -233,6 +243,13 @@ void testDraw(){
 
 color getRandomPaletteColor(color[] palette){
   return palette[floor(random(palette.length))];
+}
+
+color getColorWithAlpha(color c, float a){
+  float r = c >> 16 & 0xFF;
+  float g = c >> 8 & 0xFF;
+  float b = c & 0xFF;
+  return color(r,g,b,a);
 }
 
 void mouseClicked() {
