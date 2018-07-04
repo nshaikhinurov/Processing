@@ -9,6 +9,7 @@ int numberOfPoints;
 int numberOfLines;
 List<PVector> points;
 List<Polygon> polygons;
+List<Segment> tapeLines;
 
 void setup(){
   // size(1600, 550);
@@ -20,12 +21,16 @@ void setup(){
 }
 
 void draw(){
-  // beginRecord(PDF, "../TapeShapes.pdf");
   points = generatePoints();
   polygons = getStartingPolygons();
+  tapeLines = generateTapeLines();
+
+  // beginRecord(PDF, "../TapeShapes.pdf");
   translate(0.1*width,0.1*height);
   scale(0.8,0.8);
-  mainDraw();
+  background(whiteColor);
+  drawPolygons();
+  drawTapeLines();
   // endRecord();
 }
 
@@ -70,34 +75,37 @@ List<PVector> generatePoints(){
   return points;
 }
 
-void mainDraw(){
-  background(whiteColor);
-  drawPolygons();
-  drawTapeLines();
+List<Segment> generateTapeLines(){
+  List<Segment> tapeLines = new ArrayList<Segment>();
+  for(int i = 0; i < numberOfLines; i++){
+    int startIndex;
+    int endIndex;
+    PVector start;
+    PVector end;
+    while (true) {
+      startIndex = (int) random(points.size());
+      endIndex = (int) random(points.size());
+      if (startIndex == endIndex)
+        continue;
+      start = points.get(startIndex);
+      end = points.get(endIndex);
+      if (
+        start.x == end.x
+        || start.y == end.y
+      ) continue;
+      break;
+    }
+    Segment newTapeLine = new Segment(start,end);
+    tapeLines.add(newTapeLine);
+  }
+  return tapeLines;
 }
 
 void drawTapeLines(){
   stroke(blackColor);
   strokeWeight(10);
-  for(int i = 0; i < numberOfLines; i++){
-    int i1;
-    int i2;
-    PVector p1;
-    PVector p2;
-    while (true) {
-      i1 = (int) random(points.size());
-      i2 = (int) random(points.size());
-      if (i1 == i2)
-        continue;
-      p1 = points.get(i1);
-      p2 = points.get(i2);
-      if (
-        p1.x == p2.x
-        || p1.y == p2.y
-      ) continue;
-      break;
-    }
-    line(p1.x,p1.y,p2.x,p2.y);
+  for(Segment tapeline : tapeLines){
+    line(tapeline.start.x,tapeline.start.y,tapeline.end.x,tapeline.end.y);
   }
 }
 
