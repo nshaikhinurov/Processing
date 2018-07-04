@@ -8,63 +8,75 @@ float padding;
 int numberOfPoints;
 int numberOfLines;
 List<PVector> points;
+List<Polygon> polygons;
 
 void setup(){
-  size(1600, 550);
-  padding = 25;
-  numberOfPoints = 100;
-  numberOfLines = 10;
+  // size(1600, 550);
+  size(800, 800);
+  float perimeter = 2 * (width + height);
+  numberOfPoints = (int)(perimeter/160);
+  numberOfLines = 4;
   noLoop();
 }
 
 void draw(){
   // beginRecord(PDF, "../TapeShapes.pdf");
   points = generatePoints();
+  polygons = getStartingPolygons();
   translate(0.1*width,0.1*height);
   scale(0.8,0.8);
   mainDraw();
   // endRecord();
 }
 
+List<Polygon> getStartingPolygons(){
+  List<Polygon> polygons = new ArrayList<Polygon>();
+  List<PVector> vertices = new ArrayList<PVector>();
+  vertices.add(new PVector(0,0));
+  vertices.add(new PVector(width, 0));
+  vertices.add(new PVector(width, height));
+  vertices.add(new PVector(0, height));
+  polygons.add(new Polygon(vertices));
+  return polygons;
+}
+
 List<PVector> generatePoints(){
   List<PVector> points = new ArrayList<PVector>();
+  float perimeter = 2 * (width + height);
+  float step = perimeter / numberOfPoints;
+  float x = 0;
+  float y = 0;
   for(int i = 0; i < numberOfPoints; i++){
-    PVector p = getRandomPointOnTheEdge(padding);
+    float length = i*step;
+    if (length <= width){
+      x = length;
+      y = 0;
+    } else if (length <= width + height){
+      x = width;
+      length -= width;
+      y = length;
+    } else if (length <= 2*width + height){
+      y = height;
+      length -= width + height;
+      x = width - length;
+    } else {
+      x = 0;
+      length -= 2*width + height;
+      y = height - length;
+    }
+    PVector p = new PVector(x,y);
     points.add(p);
   }
   return points;
 }
 
-PVector getRandomPointOnTheEdge(float padding){
-  float x;
-  float y;
-
-  int side = (int)random(4);
-  switch (side){
-    case 0:
-      x = random(width);
-      y = 0;
-      break;
-    case 1:
-      x = width;
-      y = random(height);
-      break;
-    case 2:
-      x = random(width);
-      y = height;
-      break;
-    case 3:
-      x = 0;
-      y = random(height);
-    default:
-      x = -1;
-      y = -1;
-  }
-  return new PVector(x,y);
-}
-
 void mainDraw(){
   background(whiteColor);
+  drawPolygons();
+  drawTapeLines();
+}
+
+void drawTapeLines(){
   stroke(blackColor);
   strokeWeight(10);
   for(int i = 0; i < numberOfLines; i++){
@@ -82,13 +94,22 @@ void mainDraw(){
       if (
         p1.x == p2.x
         || p1.y == p2.y
-      )
-        continue;
-
-      if(PVector.sub(p2,p1).an)
+      ) continue;
       break;
     }
     line(p1.x,p1.y,p2.x,p2.y);
+  }
+}
+
+void drawPolygons(){
+  noStroke();
+  fill(color(random(255),random(255),random(255)));
+  for(Polygon polygon : polygons){
+    beginShape();
+    for(PVector v : polygon.vertices){
+      vertex(v.x,v.y);
+    }
+    endShape(CLOSE);
   }
 }
 
