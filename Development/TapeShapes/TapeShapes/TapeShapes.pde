@@ -32,7 +32,6 @@ void testDraw(){
       new PVector(0,0),
       new PVector(0,10)
   );
-  println(intersection);
 }
 
 void mainDraw(){
@@ -52,27 +51,28 @@ void mainDraw(){
 
 List<PVector> generatePoints(){
   List<PVector> points = new ArrayList<PVector>();
-  float perimeter = 2 * (width + height);
+  float padding = 0.05*max(width,height);
+  float perimeter = 2 * (width+2*padding + height+2*padding);
   float step = perimeter / numberOfPoints;
   float x = 0;
   float y = 0;
   for(int i = 0; i < numberOfPoints; i++){
     float length = i*step;
-    if (length <= width){
-      x = length;
-      y = 0;
-    } else if (length <= width + height){
-      x = width;
-      length -= width;
-      y = length;
-    } else if (length <= 2*width + height){
-      y = height;
-      length -= width + height;
-      x = width - length;
+    if (length <= width+2*padding){
+      x = length - padding;
+      y = -padding;
+    } else if (length <= width+2*padding + height+2*padding){
+      x = width + padding;
+      length -= width+2*padding;
+      y = length - padding;
+    } else if (length <= 2*(width+2*padding) + height+2*padding){
+      y = height + padding;
+      length -= width+2*padding + height+2*padding;
+      x = width + padding - length;
     } else {
-      x = 0;
-      length -= 2*width + height;
-      y = height - length;
+      x = -padding;
+      length -= 2*(width+2*padding) + height+2*padding;
+      y = height + padding - length;
     }
     PVector p = new PVector(x,y);
     points.add(p);
@@ -179,7 +179,6 @@ Segment getSplitSegment(List<PVector> verices, Segment tapeline){
     PVector edgeStart = verices.get(i);
     PVector edgeEnd = verices.get((i+1) % verices.size());
     PVector intersection = getIntersection(edgeStart, edgeEnd, tapelineStart, tapelineEnd);
-    println(intersection);
     if (intersection != null){
       if (splitStart == null){
         splitStart = intersection;
@@ -201,15 +200,25 @@ void drawTapeLines(){
 }
 
 void drawPolygons(){
-  noStroke();
   println(polygons.size());
-  for(Polygon polygon : polygons){
-    fill(color(random(255),random(255),random(255)));
+  colorMode(HSB, 360, 100, 100);
+  for(int i = 0; i < polygons.size(); i++){
+    Polygon polygon = polygons.get(i);
+    noStroke();
+    fill(color(map(i, 0, polygons.size(), 0, 360),100,100));
     beginShape();
     for(PVector v : polygon.getSortedVertices()){
       vertex(v.x,v.y);
     }
     endShape(CLOSE);
+
+    stroke(blackColor);
+    strokeWeight(10);
+    PVector centerPoint = new PVector(0, 0);
+    for(PVector vertexVector : polygon.getSortedVertices())
+      centerPoint.add(vertexVector);
+    centerPoint.div(polygon.getSortedVertices().size());
+    point(centerPoint.x,centerPoint.y);
   }
 }
 
