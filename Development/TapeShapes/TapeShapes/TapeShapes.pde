@@ -21,9 +21,25 @@ void setup(){
 }
 
 void draw(){
+  mainDraw();
+  // testDraw();
+}
+
+void testDraw(){
+  PVector intersection = getIntersection(
+      new PVector(0,0),
+      new PVector(width, 0),
+      new PVector(0,0),
+      new PVector(0,10)
+  );
+  println(intersection);
+}
+
+void mainDraw(){
   points = generatePoints();
   polygons = getStartingPolygons();
   tapeLines = generateTapeLines();
+  splitPolygonsWithTapeLines();
 
   // beginRecord(PDF, "../TapeShapes.pdf");
   translate(0.1*width,0.1*height);
@@ -32,17 +48,6 @@ void draw(){
   drawPolygons();
   drawTapeLines();
   // endRecord();
-}
-
-List<Polygon> getStartingPolygons(){
-  List<Polygon> polygons = new ArrayList<Polygon>();
-  List<PVector> vertices = new ArrayList<PVector>();
-  vertices.add(new PVector(0,0));
-  vertices.add(new PVector(width, 0));
-  vertices.add(new PVector(width, height));
-  vertices.add(new PVector(0, height));
-  polygons.add(new Polygon(vertices));
-  return polygons;
 }
 
 List<PVector> generatePoints(){
@@ -75,6 +80,17 @@ List<PVector> generatePoints(){
   return points;
 }
 
+List<Polygon> getStartingPolygons(){
+  List<Polygon> polygons = new ArrayList<Polygon>();
+  List<PVector> vertices = new ArrayList<PVector>();
+  vertices.add(new PVector(0,0));
+  vertices.add(new PVector(width, 0));
+  vertices.add(new PVector(width, height));
+  vertices.add(new PVector(0, height));
+  polygons.add(new Polygon(vertices));
+  return polygons;
+}
+
 List<Segment> generateTapeLines(){
   List<Segment> tapeLines = new ArrayList<Segment>();
   for(int i = 0; i < numberOfLines; i++){
@@ -82,23 +98,98 @@ List<Segment> generateTapeLines(){
     int endIndex;
     PVector start;
     PVector end;
+
     while (true) {
       startIndex = (int) random(points.size());
       endIndex = (int) random(points.size());
       if (startIndex == endIndex)
-        continue;
+      continue;
       start = points.get(startIndex);
       end = points.get(endIndex);
-      if (
-        start.x == end.x
-        || start.y == end.y
-      ) continue;
+      if (start.x == end.x || start.y == end.y)
+      continue;
       break;
     }
+
     Segment newTapeLine = new Segment(start,end);
     tapeLines.add(newTapeLine);
   }
   return tapeLines;
+}
+
+void splitPolygonsWithTapeLines(){
+  for (Segment tapeline : tapeLines){
+    List<Polygon> nextPolygonsGeneration = splitPolygonsWithTapeLine(tapeline);
+    polygons = nextPolygonsGeneration;
+  }
+}
+
+List<Polygon> splitPolygonsWithTapeLine(Segment tapeline){
+  List<Polygon> nextPolygonsGeneration = new ArrayList<Polygon>();
+
+  for(Polygon polygon : polygons){
+    splitPolygonWithTapeLine(polygon, tapeline, nextPolygonsGeneration);
+  }
+  return nextPolygonsGeneration;
+}
+
+void splitPolygonWithTapeLine(Polygon polygon, Segment tapeline, List<Polygon> nextPolygonsGeneration){
+  List<PVector> vertices = polygon.getSortedVertices();
+  Segment split = getSplitSegment(vertices, tapeline);
+  if (split == null){
+    nextPolygonsGeneration.add(polygon);
+    return;
+  }
+
+  List<PVector> vertices1 = new ArrayList<PVector>();
+  List<PVector> vertices2 = new ArrayList<PVector>();
+  vertices1.add(split.start);
+  vertices1.add(split.end);
+  vertices2.add(split.start);
+  vertices2.add(split.end);
+
+  PVector centerPoint = new PVector(0, 0);
+  for(PVector vertexVector : vertices)
+    centerPoint.add(vertexVector);
+  centerPoint.add(split.start);
+  centerPoint.add(split.end);
+  centerPoint.div(vertices.size()+2);
+
+  PVector centerToSplitStart = PVector.sub(split.start,centerPoint);
+  PVector centerToSplitEnd = PVector.sub(split.end,centerPoint);
+  float angleToSplitStart = centerToSplitStart.heading();
+  float angleToSplitEnd = centerToSplitEnd.heading();
+  for(PVector vertex : vertices){
+    PVector centerToVertex = PVector.sub(vertex,centerPoint);
+    if (angleToSplitStart <= centerToVertex.heading() && centerToVertex.heading() <= angleToSplitEnd)
+      vertices1.add(vertex);
+    else
+      vertices2.add(vertex);
+  }
+  nextPolygonsGeneration.add(new Polygon(vertices1));
+  nextPolygonsGeneration.add(new Polygon(vertices2));
+}
+
+Segment getSplitSegment(List<PVector> verices, Segment tapeline){
+  PVector tapelineStart = tapeline.start;
+  PVector tapelineEnd = tapeline.end;
+  PVector splitStart = null;
+  PVector splitEnd = null;
+  for(int i = 0; i < verices.size(); i++){
+    PVector edgeStart = verices.get(i);
+    PVector edgeEnd = verices.get((i+1) % verices.size());
+    PVector intersection = getIntersection(edgeStart, edgeEnd, tapelineStart, tapelineEnd);
+    println(intersection);
+    if (intersection != null){
+      if (splitStart == null){
+        splitStart = intersection;
+      } else {
+        splitEnd = intersection;
+        return new Segment(splitStart, splitEnd);
+      }
+    }
+  }
+  return null;
 }
 
 void drawTapeLines(){
@@ -111,19 +202,20 @@ void drawTapeLines(){
 
 void drawPolygons(){
   noStroke();
-  fill(color(random(255),random(255),random(255)));
+  println(polygons.size());
   for(Polygon polygon : polygons){
+    fill(color(random(255),random(255),random(255)));
     beginShape();
-    for(PVector v : polygon.vertices){
+    for(PVector v : polygon.getSortedVertices()){
       vertex(v.x,v.y);
     }
     endShape(CLOSE);
   }
 }
 
-PVector intersection(PVector start1, PVector end1, PVector start2, PVector end2)
+PVector getIntersection(PVector start1, PVector end1, PVector start2, PVector end2)
 {
-  PVector out_intersection = null;
+  PVector intersection = null;
   PVector dir1 = PVector.sub(end1,start1);
   PVector dir2 = PVector.sub(end2,start2);
 
@@ -144,17 +236,13 @@ PVector intersection(PVector start1, PVector end1, PVector start2, PVector end2)
   float seg2_line1_end = a1*end2.x + b1*end2.y + d1;
 
   //если концы одного отрезка имеют один знак, значит он в одной полуплоскости и пересечения нет.
-  if (seg1_line2_start * seg1_line2_end >= 0 || seg2_line1_start * seg2_line1_end >= 0)
+  if (seg1_line2_start * seg1_line2_end > 0 || seg2_line1_start * seg2_line1_end > 0)
     return null;
 
   float u = seg1_line2_start / (seg1_line2_start - seg1_line2_end);
-  out_intersection =  PVector.add(start1,PVector.mult(dir1,u));
+  intersection =  PVector.add(start1,PVector.mult(dir1,u));
 
-  return out_intersection;
-}
-
-void testDraw(){
-  background(whiteColor);
+  return intersection;
 }
 
 color getRandomPaletteColor(color[] palette){
