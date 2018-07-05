@@ -12,11 +12,12 @@ List<Polygon> polygons;
 List<Segment> tapeLines;
 
 void setup(){
-  // size(1600, 550);
-  size(800, 800);
+  size(1600, 500);
+  // size(800, 800);
   float perimeter = 2 * (width + height);
-  numberOfPoints = (int)(perimeter/160);
-  numberOfLines = 4;
+  numberOfPoints = (int)(perimeter/100);
+  // numberOfLines = numberOfPoints/5;
+  numberOfLines = numberOfPoints/5;
   noLoop();
 }
 
@@ -40,13 +41,13 @@ void mainDraw(){
   tapeLines = generateTapeLines();
   splitPolygonsWithTapeLines();
 
-  // beginRecord(PDF, "../TapeShapes.pdf");
-  translate(0.1*width,0.1*height);
-  scale(0.8,0.8);
+  beginRecord(PDF, "../TapeShapes.pdf");
+  // translate(0.1*width,0.1*height);
+  // scale(0.8,0.8);
   background(whiteColor);
   drawPolygons();
   drawTapeLines();
-  // endRecord();
+  endRecord();
 }
 
 List<PVector> generatePoints(){
@@ -181,15 +182,14 @@ Segment getSplitSegment(List<PVector> verices, Segment tapeline){
 }
 
 void drawTapeLines(){
-  stroke(blackColor);
-  strokeWeight(10);
+  stroke(whiteColor);
+  strokeWeight(20);
   for(Segment tapeline : tapeLines){
     line(tapeline.start.x,tapeline.start.y,tapeline.end.x,tapeline.end.y);
   }
 }
 
 void drawPolygons(){
-  println(polygons.size());
   colorMode(HSB, 360, 100, 100);
   for(int i = 0; i < polygons.size(); i++){
     Polygon polygon = polygons.get(i);
@@ -200,14 +200,6 @@ void drawPolygons(){
       vertex(v.x,v.y);
     }
     endShape(CLOSE);
-
-    stroke(blackColor);
-    strokeWeight(10);
-    PVector centerPoint = new PVector(0, 0);
-    for(PVector vertexVector : polygon.getSortedVertices())
-      centerPoint.add(vertexVector);
-    centerPoint.div(polygon.getSortedVertices().size());
-    point(centerPoint.x,centerPoint.y);
   }
 }
 
