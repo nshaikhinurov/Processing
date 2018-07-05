@@ -200,7 +200,7 @@ PVector getIntersection(PVector start1, PVector end1, PVector start2, PVector en
   float b2 = +dir2.x;
   float d2 = -(a2*start2.x + b2*start2.y);
 
-  //подставляем концы отрезков, для выяснения в каких полуплоскотях они
+  //подставляем концы отрезков, для выяснения в каких полуплоскостях они
   float seg1_line2_start = a2*start1.x + b2*start1.y + d2;
   float seg1_line2_end = a2*end1.x + b2*end1.y + d2;
 
