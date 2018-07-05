@@ -13,37 +13,19 @@ List<Segment> tapeLines;
 
 void setup(){
   size(1600, 500);
-  // size(800, 800);
   float perimeter = 2 * (width + height);
   numberOfPoints = (int)(perimeter/100);
-  // numberOfLines = numberOfPoints/5;
   numberOfLines = numberOfPoints/5;
   noLoop();
 }
 
 void draw(){
-  mainDraw();
-  // testDraw();
-}
-
-void testDraw(){
-  PVector intersection = getIntersection(
-      new PVector(0,0),
-      new PVector(width, 0),
-      new PVector(0,0),
-      new PVector(0,10)
-  );
-}
-
-void mainDraw(){
   points = generatePoints();
   polygons = getStartingPolygons();
   tapeLines = generateTapeLines();
   splitPolygonsWithTapeLines();
 
   beginRecord(PDF, "../TapeShapes.pdf");
-  // translate(0.1*width,0.1*height);
-  // scale(0.8,0.8);
   background(whiteColor);
   drawPolygons();
   drawTapeLines();
