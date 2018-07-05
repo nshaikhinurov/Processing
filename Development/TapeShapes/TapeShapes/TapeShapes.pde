@@ -148,20 +148,9 @@ void splitPolygonWithTapeLine(Polygon polygon, Segment tapeline, List<Polygon> n
   vertices2.add(split.start);
   vertices2.add(split.end);
 
-  PVector centerPoint = new PVector(0, 0);
-  for(PVector vertexVector : vertices)
-    centerPoint.add(vertexVector);
-  centerPoint.add(split.start);
-  centerPoint.add(split.end);
-  centerPoint.div(vertices.size()+2);
-
-  PVector centerToSplitStart = PVector.sub(split.start,centerPoint);
-  PVector centerToSplitEnd = PVector.sub(split.end,centerPoint);
-  float angleToSplitStart = centerToSplitStart.heading();
-  float angleToSplitEnd = centerToSplitEnd.heading();
   for(PVector vertex : vertices){
-    PVector centerToVertex = PVector.sub(vertex,centerPoint);
-    if (angleToSplitStart <= centerToVertex.heading() && centerToVertex.heading() <= angleToSplitEnd)
+    float D = (vertex.x - split.start.x) * (split.end.y - split.start.y) - (vertex.y - split.start.y) * (split.end.x - split.start.x);
+    if (D <= 0)
       vertices1.add(vertex);
     else
       vertices2.add(vertex);
