@@ -1,9 +1,6 @@
 import processing.pdf.*;
 import java.util.*;
 
-float screenWidth;
-float screenHeight;
-
 color blackColor = #212121;
 color whiteColor = #eeeeee;
 
@@ -12,8 +9,6 @@ float start = 0;
 
 void setup(){
   size(1000, 1000);
-  screenWidth = width;
-  screenHeight = height;
   // noLoop();
 }
 

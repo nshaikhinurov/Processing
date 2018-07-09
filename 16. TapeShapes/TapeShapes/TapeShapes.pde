@@ -10,9 +10,22 @@ int numberOfLines;
 List<PVector> points;
 List<Polygon> polygons;
 List<Segment> tapeLines;
+color[] palette1 = {
+  #f9c80e
+  ,#f86624
+  ,#ea3546
+  ,#662e9b
+  ,#43bccd
+};
+
+color[] palette2 = {
+  #f5b201
+  ,#87bd2c
+  ,#ab679f
+};
 
 void setup(){
-  size(1600, 500);
+  size(1200, 800);
   float perimeter = 2 * (width + height);
   numberOfPoints = (int)(perimeter/100);
   numberOfLines = numberOfPoints/5;
@@ -165,18 +178,22 @@ Segment getSplitSegment(List<PVector> verices, Segment tapeline){
 
 void drawTapeLines(){
   stroke(whiteColor);
-  strokeWeight(20);
   for(Segment tapeline : tapeLines){
+    strokeWeight(15);
+    if (random(1) < 0.33){
+      strokeWeight(40);
+    }
     line(tapeline.start.x,tapeline.start.y,tapeline.end.x,tapeline.end.y);
   }
 }
 
 void drawPolygons(){
-  colorMode(HSB, 360, 100, 100);
+  // colorMode(HSB, 360, 100, 100);
   for(int i = 0; i < polygons.size(); i++){
     Polygon polygon = polygons.get(i);
     noStroke();
-    fill(color(map(i, 0, polygons.size(), 0, 360),100,100));
+    // fill(color(map(i, 0, polygons.size(), 0, 360),100,100));
+    fill(getRandomPaletteColor(palette2));
     beginShape();
     for(PVector v : polygon.getSortedVertices()){
       vertex(v.x,v.y);
@@ -185,8 +202,7 @@ void drawPolygons(){
   }
 }
 
-PVector getIntersection(PVector start1, PVector end1, PVector start2, PVector end2)
-{
+PVector getIntersection(PVector start1, PVector end1, PVector start2, PVector end2){
   PVector intersection = null;
   PVector dir1 = PVector.sub(end1,start1);
   PVector dir2 = PVector.sub(end2,start2);
