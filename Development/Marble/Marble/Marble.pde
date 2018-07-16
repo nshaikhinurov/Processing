@@ -1,34 +1,26 @@
 import processing.pdf.*;
 import java.util.*;
 
-color redColor = #F44336;
-color yellowColor = #FFEB3B;
-color indigoColor = #3F51B5;
 color blackColor = #212121;
 color whiteColor = #eeeeee;
-color[] palette1 = {
-  #581845
-  ,#900c3f
-  ,#c70039
-  ,#ff5733
-  ,#ffc305
-};
+
 color[] bw = {
   whiteColor,blackColor
 };
 
 float inc;
 int seed;
+int resolutionMultiplier;
 
 void setup(){
-  // size(1000, 1000);
-  size(500, 500);
-  noiseDetail(1000);
+  size(1000, 1000);
+  // noiseDetail(1000);
+  noiseDetail(50);
   inc  = 0.02;
   seed = millis();
-  // seededRender(1);
-  saveHighRes(1);
-  saveHighRes(2);
+  seededRender(1);
+  // saveHighRes(1);
+  // saveHighRes(2);
   noLoop();
 }
 
@@ -47,19 +39,21 @@ void saveHighRes(int resolutionMultiplier) {
     println("Finished");
   }
 
-void seededRender(int resolutionMultiplier){
+void seededRender(int rm){
   randomSeed(seed);
   noiseSeed(seed);
-  render(resolutionMultiplier);
+  resolutionMultiplier = rm;
+  render();
 }
 
-void render(int resolutionMultiplier){
+void render(){
   background(whiteColor);
-  float[] noiseArr = generateNoise(resolutionMultiplier);
-  renderNoise(noiseArr, resolutionMultiplier);
+  float[] noiseArr = generateNoise();
+  // renderNoise(noiseArr);
+  renderSine(noiseArr);
 }
 
-float[] generateNoise(int resolutionMultiplier){
+float[] generateNoise(){
   float[] noiseArr = new float[width*height*resolutionMultiplier*resolutionMultiplier];
   float randomiser = random(1000);
   float yOff = randomiser;
@@ -75,13 +69,32 @@ float[] generateNoise(int resolutionMultiplier){
   return noiseArr;
 }
 
-void renderNoise(float[] noiseArr, int resolutionMultiplier){
+void renderNoise(float[] noiseArr){
   noStroke();
   float size = 1;
   for (int y = 0; y < height*resolutionMultiplier; y++){
     for (int x = 0; x < width*resolutionMultiplier; x++){
       int index = x + y*width*resolutionMultiplier;
       color fillColor = color(noiseArr[index]*255);
+      fill(fillColor);
+      rect(x,y,size,size);
+    }
+  }
+}
+
+void renderSine(float[] noiseArr){
+  noStroke();
+  float size = 1;
+  float xPeriod = 0;
+  float yPeriod = 1;
+  float noisePower = 0;
+  for (int y = 0; y < height*resolutionMultiplier; y++){
+    for (int x = 0; x < width*resolutionMultiplier; x++){
+      int index = x + y*width*resolutionMultiplier;
+      float xyValue = xPeriod*x/width*resolutionMultiplier + yPeriod*y/height*resolutionMultiplier + noisePower*noiseArr[index];
+      float sine = abs(sin(xyValue*PI));
+      float normalize = lerp(0,255,1-sine);
+      color fillColor = color( normalize );
       fill(fillColor);
       rect(x,y,size,size);
     }
