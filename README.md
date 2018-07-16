@@ -1,10 +1,10 @@
 # Generative art made with Processing
 More about Processing on [Processing.org](https://processing.org/)
 
-Artwork #4. Lanscape.
+Artwork #4. Landscape.
 Inspired by Firewatch.
 
-![](https://github.com/nshaikhinurov/Processing/blob/dev/4.%20Lanscape/Landscape/images/Lanscape.jpg "Landscape")
+![](https://github.com/nshaikhinurov/Processing/blob/dev/4.%20Landscape/Landscape/images/Landscape.jpg "Landscape")
 
 Artwork #3. Fibonacci Sunflower.
 
