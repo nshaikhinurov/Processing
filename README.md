@@ -6,7 +6,6 @@ Using programming and different algorithms I create these beautiful abstract art
 More about Processing on [Processing.org](https://processing.org/)
 
 All the artworks are available as canvas prints. So you can support the project!
-[Canvas Mockups on Instagram](https://www.instagram.com/nail.shaikhinurov/)
 
 ## Artwork #7. Sakura Tree
 
